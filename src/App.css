@@ -1,0 +1,5 @@
+.custom-link {
+    text-decoration: none; /* Removes underline */
+    color: inherit; /* Keeps the color consistent */
+}
+
