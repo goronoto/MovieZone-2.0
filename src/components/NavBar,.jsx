@@ -1,98 +1,154 @@
-import { AppBar, InputBase, Typography, Toolbar, Avatar, Button, Menu, MenuItem } from "@mui/material"; 
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { AppBar, InputBase, Typography, Toolbar, Button } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
-import ThemeSwitch from "./ThemeSwitch";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "@mui/material/styles";
-import { ToggleTheme } from "../rdx/SwitchSlice";
+import MenuIcon from '@mui/icons-material/Menu';
+import ThemeSwitch from "./ThemeSwitch";
+import DialogTable from "./DialogTable";
+import BurgerMenu from "./BurgerMenu";
+import { ToggleTheme } from "../rdx/SwitchSlice"; 
 
 export default function Navbar() {
-    const [query, setQuery] = useState("");
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+    const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
     const navigate = useNavigate();
-    
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const theme = useTheme();
+    const isDarkMode = useSelector((state) => state.switch.theme);
 
-    function handleSearch() {
-        if (query.trim() !== "") {
-            navigate(`/search?q=${query}`);
+    // Initialize user state from localStorage on component mount
+    const [currentUser, setCurrentUser] = useState(() => {
+        try {
+            const savedUser = localStorage.getItem('currentUser');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (error) {
+            console.error("Error reading user from localStorage:", error);
+            return null; // Start with null if parsing fails
         }
-    }
+    });
 
-    function handleMenuOpen(event) {
-        setAnchorEl(event.currentTarget);
-    }
+    // --- Event Handlers ---
 
-    function handleMenuClose() {
-        setAnchorEl(null);
-    }
+    const openLoginDialogHandler = () => {
+        setIsLoginDialogOpen(true);
+        menuCloseHandler(); // Close the menu when opening the dialog
+    };
 
-    const isDarkMode = useSelector((state) => state.switch.theme)
+    const closeLoginDialogHandler = () => {
+        setIsLoginDialogOpen(false);
+    };
+
+    const loginSuccessHandler = (userData) => {
+        console.log("Login/Register action successful!", userData);
+        if (userData) {
+            try {
+                // Persist user data in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                // Update React state to trigger UI changes
+                setCurrentUser(userData);
+            } catch (error) {
+                console.error("Error saving user to localStorage:", error);
+            }
+        } else {
+            // Handle cases where user data might not be returned (e.g., registration without auto-login)
+            console.warn("loginSuccessHandler called without userData");
+        }
+        closeLoginDialogHandler(); // Close the dialog after successful login/registration
+    };
+
+    const logoutHandler = () => {
+        console.log("Logging out user");
+        // Clear user data from localStorage
+        localStorage.removeItem('currentUser');
+        // Reset React state to null
+        setCurrentUser(null);
+        menuCloseHandler(); // Close the menu
+    };
+
+    const searchHandler = () => {
+        if (searchQuery.trim() !== "") {
+            navigate(`/search?q=${searchQuery}`);
+        }
+    };
+
+    const menuOpenHandler = (event) => {
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const menuCloseHandler = () => {
+        setMenuAnchorEl(null);
+    };
+
+    // Effect to sync login state across browser tabs/windows
+    useEffect(() => {
+        const handleStorageChange = (event) => {
+            // Update state if the 'currentUser' key in localStorage changes in another tab
+            if (event.key === 'currentUser') {
+                try {
+                    setCurrentUser(event.newValue ? JSON.parse(event.newValue) : null);
+                } catch (error) {
+                    console.error("Error parsing user data from storage event:", error);
+                    setCurrentUser(null); // Reset on error
+                }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        // Cleanup function to remove the listener when the component unmounts
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     return (
+        <>
             <AppBar
-                sx={{
-                    bgcolor: theme.palette.primary.main,
-                    color: theme.palette.secondary.main,
-                    position: "fixed"
-                }}
+                sx={{ bgcolor: theme.palette.primary.main, color: theme.palette.secondary.main, position: "fixed" }}
             >
-            <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h3" sx={{ display: { xs: "none", sm: "block",color: theme.palette.secondary1.main  }, textDecoration: 'none'  }}>
-                    <Link className="custom-link" to="/" >MovieZone</Link>
-                </Typography>
-                <Toolbar sx={{ width: { xs: "70%", sm: "40%" } }}>
-                    <InputBase
-                        onChange={(e) => setQuery(e.target.value)}
-                        value={query}
-                        sx={{
-                            width: "90%",
-                            padding: "5px",
-                            marginRight: "10px",
-                            background: "white",
-                            borderRadius: "11px",
-                        }}
-                        placeholder="Search..."
+                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+                    {/* Logo/Brand Name */}
+                    <Typography variant="h3" sx={{ display: { xs: "none", sm: "block", color: theme.palette.secondary1.main }, textDecoration: 'none' }}>
+                        <Link className="custom-link" to="/">MovieZone</Link>
+                    </Typography>
+
+                    {/* Search Bar */}
+                    <Toolbar sx={{ width: { xs: "70%", sm: "40%" } }}>
+                        <InputBase
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            value={searchQuery}
+                            sx={{ width: "90%", padding: "5px", marginRight: "10px", background: "white", borderRadius: "11px" }}
+                            placeholder="Search..." 
+                        />
+                        <Button
+                            onClick={searchHandler}
+                            sx={{ backgroundColor: "black", color: "white", borderRadius: "10px", p: '5px' }}
+                        >
+                            Search 
+                        </Button>
+                    </Toolbar>
+
+                    {/* Theme Switch and Burger Menu Trigger */}
+                    <ThemeSwitch darkMode={isDarkMode} ToggleTheme={() => dispatch(ToggleTheme())} />
+                    <MenuIcon onClick={menuOpenHandler} sx={{ cursor: "pointer", color: 'white' }} />
+
+                    {/* Burger Menu Component */}
+                    <BurgerMenu
+                        anchorEl={menuAnchorEl}
+                        handleMenuClose={menuCloseHandler}
+                        currentUser={currentUser}
+                        handleLogout={logoutHandler}
+                        handleOpenLogin={openLoginDialogHandler} 
                     />
-                    <Button
-                        onClick={handleSearch}
-                        sx={{
-                            backgroundColor: "black",
-                            color: "white",
-                            borderRadius: "10px",
-                            p: '5px'
-                        }}
-                    >
-                        Search
-                    </Button>
                 </Toolbar>
-                <ThemeSwitch darkMode={isDarkMode}  ToggleTheme={() => dispatch(ToggleTheme())}/>
-                <Avatar onClick={handleMenuOpen} sx={{ cursor: "pointer" }} /> 
-                <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    transformOrigin={{ vertical: "top", horizontal: "right" }}
-                >
-                    <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-                    <MenuItem onClick={handleMenuClose}>
-                        <Link className="custom-link" to='/'>
-                            Home
-                        </Link>
-                    </MenuItem>
-                    <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-                    <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-                    <MenuItem onClick={handleMenuClose}>
-                        <Link className="custom-link" to='/watchLater'>
-                            WatchLater
-                        </Link>
-                    </MenuItem>
-                </Menu>
-            </Toolbar>
-        </AppBar>
+            </AppBar>
+
+            {/* Login/Register Dialog Component */}
+            <DialogTable
+                openLoginDialog={isLoginDialogOpen} 
+                handleCloseLogin={closeLoginDialogHandler} 
+                handleLoginSuccess={loginSuccessHandler} 
+            />
+        </>
     );
 }
-

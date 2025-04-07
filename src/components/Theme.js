@@ -5,6 +5,9 @@ export const customTheme = {
         primary: {
             main: blue[500]
         },
+        primary1: {
+            main: blue[500]
+        },
         secondary: {
             main: grey[50]
         },
@@ -19,6 +22,9 @@ export const customTheme = {
     dark: {
         primary: {
             main: '#1e1e1e'
+        },
+        primary1: {
+            main: blue[500]
         },
         secondary: {
             main: grey[900]

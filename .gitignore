@@ -1,24 +1,25 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Файли загального призначення
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.log
+*.tmp
+*.swp
+
+# Залежності Node.js (для фронтенду ТА бекенду)
+node_modules/
+
+# Папки збірки фронтенду (якщо ти робиш build)
+build/
+dist/
+
+# Файли середовища (дуже важливо для секретів!)
+.env
+.env.*
+!.env.example
+
+# Файли бази даних SQLite (не варто версіонувати сам файл даних)
+my-backend/database.db
+my-backend/*.db-journal # Тимчасові файли SQLite
+
+# Інші файли, специфічні для твоєї ОС або IDE
+.vscode/
+.idea/
