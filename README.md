@@ -81,9 +81,9 @@ This project consists of two parts: the Frontend (React) and the Backend (Node.j
 
 **2. Backend Setup (my-backend - Node.js API):**
 
-   a.  **Clone the Backend repository** (replace `<your-backend-repo-url>` with the actual URL):
+   a.  **Clone the Backend repository**
        ```bash
-       git clone <your-backend-repo-url> moviezone-backend
+       git clone https://github.com/goronoto/moviezone-backend 
        # Example: git clone https://github.com/goronoto/moviezone-backend.git moviezone-backend
        ```
    b.  **Navigate to the Backend project directory:**
