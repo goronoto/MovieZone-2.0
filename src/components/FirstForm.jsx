@@ -60,6 +60,7 @@ export default function FirstForm({ onSuccess }) { // Accept onSuccess callback 
 
     // Select validation schema and initial values based on the current mode
     const currentSchema = isRegisterMode ? RegisterSchema : LoginSchema;
+    
     const initialFormValues = isRegisterMode
         ? { username: '', email: '', password: '' }
         : { identifier: '', password: '' };

@@ -1,13 +1,13 @@
-import Navbar from "../components/NavBar,";
+import Layout from "../components/Layout";
 import WatchLater from "../components/WatchLater";
-import Footer from "../components/Footer";
+
 
 export default function WatchLaterList(){
     return(
         <>
-            <Navbar />
-            <WatchLater  />
-            <Footer />
+            <Layout children={<WatchLater/>}>
+                
+            </Layout>
         </>
     )
 }

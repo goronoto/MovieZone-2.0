@@ -1,13 +1,12 @@
 import Content from "../components/Content";
-import Navbar from "../components/NavBar,";
-import Footer from "../components/Footer";
+import Layout from "../components/Layout";
 
 export default function HomePage(){
     return(
         <>
-            <Navbar/>
-            <Content/>
-            <Footer/>
+            <Layout children={<Content/>}>
+
+            </Layout>
         </>
     )
 }

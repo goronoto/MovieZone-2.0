@@ -1,7 +1,7 @@
-import Navbar from "../components/NavBar,";
+import Layout from "../components/Layout";
 import Search from "../components/Search"; 
 import { motion } from "framer-motion";
-import Footer from "../components/Footer";
+
 
 export default function SearchPage(){
     return(
@@ -12,9 +12,9 @@ export default function SearchPage(){
                 exit={{ opacity: 0, y: -50 }} 
                 transition={{ duration: 0.5 }}
             >
-                <Navbar/>
-                <Search/>
-                <Footer/>
+                <Layout children={<Search/>}>
+                    
+                </Layout>
             </motion.div>
         </>
     )
